@@ -1,0 +1,5 @@
+expression DataFolderPath = "F:\PowerBI+VSCode+Claude\Atilq_Hospitality_Analysis\Atilq_Hospitality_Data" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: f91754e2-622c-4088-96c1-67c085ed8c1b
+
+	annotation PBI_ResultType = Text
+

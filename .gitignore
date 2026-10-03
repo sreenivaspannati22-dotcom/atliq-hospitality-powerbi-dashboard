@@ -1,0 +1,7 @@
+**/.pbi/
+.venv/
+__pycache__/
+*.pyc
+
+# Course data files are not redistributed
+Atilq_Hospitality_Data/

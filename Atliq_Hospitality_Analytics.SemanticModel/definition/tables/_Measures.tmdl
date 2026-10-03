@@ -1,0 +1,447 @@
+table _Measures
+	lineageTag: 04584123-b6d0-4638-90eb-9bd6ee9fe1ad
+
+	/// Total revenue realised by hotels. Cancelled bookings contribute only 60% of revenue generated (40% is deducted as refund); Checked Out and No Show bookings contribute in full.
+	measure Revenue = SUM(fact_bookings[revenue_realized])
+		formatString: ₹ #,##0
+		displayFolder: Revenue & Pricing
+		lineageTag: a26d7ea8-565b-4b1e-a2f5-e6dd17feccb2
+
+	/// Average Daily Rate: realised revenue per booking (room sold). Shows the average amount paid for a room sold in the selected period.
+	measure ADR = DIVIDE([Revenue], [Total Bookings], 0)
+		formatString: ₹ #,##0.00
+		displayFolder: Revenue & Pricing
+		lineageTag: 1b61b8a2-0712-4400-b1c2-1987994a8f5b
+
+	/// Revenue Per Available Room: realised revenue divided by total room capacity, whether or not rooms were occupied. Used to benchmark revenue performance.
+	measure RevPAR = DIVIDE([Revenue], [Total Capacity])
+		formatString: ₹ #,##0.00
+		displayFolder: Revenue & Pricing
+		lineageTag: 31c424a8-7743-4892-914a-9da8ed39aadb
+
+	/// Total number of bookings made (all statuses: Checked Out, Cancelled and No Show).
+	measure 'Total Bookings' = COUNT(fact_bookings[booking_id])
+		formatString: #,##0
+		displayFolder: Bookings
+		lineageTag: c3eba529-74c7-4b66-9989-85cc4daec247
+
+	/// Number of bookings where the guest actually stayed and checked out.
+	measure 'Total Checked Out' = CALCULATE([Total Bookings], fact_bookings[booking_status] = "Checked Out")
+		formatString: #,##0
+		displayFolder: Bookings
+		lineageTag: 1a9cef2e-33f3-4dc7-899f-c355626a3e19
+
+	/// Number of bookings with status Cancelled.
+	measure 'Total cancelled bookings' = CALCULATE([Total Bookings], fact_bookings[booking_status] = "Cancelled")
+		formatString: #,##0
+		displayFolder: Bookings
+		lineageTag: dbc11fe2-bef0-4705-8c96-a5248657379d
+
+	/// Number of bookings with status No Show (guest neither cancelled nor turned up).
+	measure 'Total no show bookings' = CALCULATE([Total Bookings], fact_bookings[booking_status] = "No Show")
+		formatString: #,##0
+		displayFolder: Bookings
+		lineageTag: ae03c6f8-360c-4a29-9609-6779f3639806
+
+	/// Total successful room bookings across all hotels, taken from the aggregated bookings table (basis for Occupancy %).
+	measure 'Total Succesful Bookings' = SUM(fact_aggregated_bookings[successful_bookings])
+		formatString: #,##0
+		displayFolder: Bookings
+		lineageTag: 0afffa03-f631-483d-8a19-39a069033e1f
+
+	/// Share of total bookings that were cancelled.
+	measure 'Cancellation %' = DIVIDE([Total cancelled bookings], [Total Bookings])
+		formatString: 0.0%
+		displayFolder: Booking Status Rates
+		lineageTag: 2d90d5db-1a94-4202-8bb2-827bbc43d90a
+
+	/// Share of total bookings that were no shows.
+	measure 'No Show rate %' = DIVIDE([Total no show bookings], [Total Bookings])
+		formatString: 0.0%
+		displayFolder: Booking Status Rates
+		lineageTag: c7639315-c36a-4672-a3bc-ce02b6ac0144
+
+	/// Share of total bookings that were successfully checked out, calculated as 1 - (Cancellation % + No Show rate %).
+	measure 'Realisation %' = 1 - ([Cancellation %] + [No Show rate %])
+		formatString: 0.0%
+		displayFolder: Booking Status Rates
+		lineageTag: 6644caa0-9dd3-4903-a0b7-0ffc0a2eebf4
+
+	/// Total number of rooms available (sellable capacity) across hotels for the selected period.
+	measure 'Total Capacity' = SUM(fact_aggregated_bookings[capacity])
+		formatString: #,##0
+		displayFolder: Capacity & Occupancy
+		lineageTag: de6c3dd3-7dcf-42cc-a918-4477964f1eea
+
+	/// Occupancy: total successful bookings as a share of total room capacity.
+	measure 'Occupancy %' = DIVIDE([Total Succesful Bookings], [Total Capacity], 0)
+		formatString: 0.0%
+		displayFolder: Capacity & Occupancy
+		lineageTag: 7624bfdd-5a94-4bff-8ba0-b2f092401bd0
+
+	/// Number of calendar days in the selected period (first to last date in context, inclusive). 92 days for the full May-July dataset.
+	measure 'No of days' = DATEDIFF(MIN(dim_date[date]), MAX(dim_date[date]), DAY) + 1
+		formatString: #,##0
+		displayFolder: Capacity & Occupancy
+		lineageTag: e75674f0-d076-4d00-ac76-b34d488c6a8f
+
+	/// Daily Booked Room Nights: average number of rooms booked per day in the selected period.
+	measure DBRN = DIVIDE([Total Bookings], [No of days])
+		formatString: #,##0.0
+		displayFolder: Capacity & Occupancy
+		lineageTag: eebb9bdf-cd68-46b3-8b36-4d08c1ee8fea
+
+	/// Daily Sellable Room Nights: average number of rooms available to sell per day in the selected period.
+	measure DSRN = DIVIDE([Total Capacity], [No of days])
+		formatString: #,##0.0
+		displayFolder: Capacity & Occupancy
+		lineageTag: feca225b-b88d-4048-bc4e-e1084bee2111
+
+	/// Daily Utilized Room Nights: average number of rooms actually used (checked out) per day in the selected period.
+	measure DURN = DIVIDE([Total Checked Out], [No of days])
+		formatString: #,##0.0
+		displayFolder: Capacity & Occupancy
+		lineageTag: cab0473a-83cd-45e6-ac38-d31c275f9c49
+
+	/// Average rating given by customers for hotel services. Bookings without a rating are ignored.
+	measure 'Average Rating' = AVERAGE(fact_bookings[ratings_given])
+		formatString: 0.0
+		displayFolder: Customer
+		lineageTag: ffd55782-2584-40ba-b44e-c9ad4bf825ad
+
+	/// Contribution of each booking platform (makeyourtrip, logtrip, tripster, etc.) to total bookings. Use with booking_platform on an axis. Returned as a fraction and shown as a percentage.
+	measure 'Booking % by Platform' = DIVIDE([Total Bookings], CALCULATE([Total Bookings], ALL(fact_bookings[booking_platform])))
+		formatString: 0.0%
+		displayFolder: Booking Mix
+		lineageTag: f467a72d-6a68-4c94-895f-091a65dd1c62
+
+	/// Contribution of each room class (Standard, Elite, Premium, Presidential) to total bookings. Use with dim_rooms[room_class] on an axis. Returned as a fraction and shown as a percentage.
+	measure 'Booking % by Room class' = DIVIDE([Total Bookings], CALCULATE([Total Bookings], ALL(dim_rooms[room_class])))
+		formatString: 0.0%
+		displayFolder: Booking Mix
+		lineageTag: 783b69b9-62ba-481c-9a7e-88e5dae7453d
+
+	/// Week-over-week change in Revenue, comparing the selected (or latest) week with the previous week, as a percentage change.
+	measure 'Revenue WoW change %' =
+			VAR selv = IF(HASONEFILTER(dim_date[wn]), SELECTEDVALUE(dim_date[wn]), MAX(dim_date[wn]))
+			VAR cw = CALCULATE([Revenue], dim_date[wn] = selv)
+			VAR pw = CALCULATE([Revenue], FILTER(ALL(dim_date), dim_date[wn] = selv - 1))
+			RETURN DIVIDE(cw, pw, 0) - 1
+		formatString: 0.0%
+		displayFolder: Week over Week
+		lineageTag: ad8d6076-6329-4b25-98d1-ba9088a507ed
+
+	/// Week-over-week change in Occupancy %, comparing the selected (or latest) week with the previous week, as a percentage change.
+	measure 'Occupancy WoW change %' =
+			VAR selv = IF(HASONEFILTER(dim_date[wn]), SELECTEDVALUE(dim_date[wn]), MAX(dim_date[wn]))
+			VAR cw = CALCULATE([Occupancy %], dim_date[wn] = selv)
+			VAR pw = CALCULATE([Occupancy %], FILTER(ALL(dim_date), dim_date[wn] = selv - 1))
+			RETURN DIVIDE(cw, pw, 0) - 1
+		formatString: 0.0%
+		displayFolder: Week over Week
+		lineageTag: 4d183fd4-a36d-4dbc-b5dd-d4a3908d3a6a
+
+	/// Week-over-week change in ADR, comparing the selected (or latest) week with the previous week, as a percentage change.
+	measure 'ADR WoW change %' =
+			VAR selv = IF(HASONEFILTER(dim_date[wn]), SELECTEDVALUE(dim_date[wn]), MAX(dim_date[wn]))
+			VAR cw = CALCULATE([ADR], dim_date[wn] = selv)
+			VAR pw = CALCULATE([ADR], FILTER(ALL(dim_date), dim_date[wn] = selv - 1))
+			RETURN DIVIDE(cw, pw, 0) - 1
+		formatString: 0.0%
+		displayFolder: Week over Week
+		lineageTag: 22545fe8-1057-4e25-8aee-18c47b9d2077
+
+	/// Week-over-week change in RevPAR, comparing the selected (or latest) week with the previous week, as a percentage change.
+	measure 'Revpar WoW change %' =
+			VAR selv = IF(HASONEFILTER(dim_date[wn]), SELECTEDVALUE(dim_date[wn]), MAX(dim_date[wn]))
+			VAR cw = CALCULATE([RevPAR], dim_date[wn] = selv)
+			VAR pw = CALCULATE([RevPAR], FILTER(ALL(dim_date), dim_date[wn] = selv - 1))
+			RETURN DIVIDE(cw, pw, 0) - 1
+		formatString: 0.0%
+		displayFolder: Week over Week
+		lineageTag: 7d4b5559-5274-4d08-93e5-9ec59bf76516
+
+	/// Week-over-week change in Realisation %, comparing the selected (or latest) week with the previous week, as a percentage change.
+	measure 'Realisation WoW change %' =
+			VAR selv = IF(HASONEFILTER(dim_date[wn]), SELECTEDVALUE(dim_date[wn]), MAX(dim_date[wn]))
+			VAR cw = CALCULATE([Realisation %], dim_date[wn] = selv)
+			VAR pw = CALCULATE([Realisation %], FILTER(ALL(dim_date), dim_date[wn] = selv - 1))
+			RETURN DIVIDE(cw, pw, 0) - 1
+		formatString: 0.0%
+		displayFolder: Week over Week
+		lineageTag: b4511d78-82ec-4588-8149-2d495a9bb800
+
+	/// Week-over-week change in DSRN, comparing the selected (or latest) week with the previous week, as a percentage change.
+	measure 'DSRN WoW change %' =
+			VAR selv = IF(HASONEFILTER(dim_date[wn]), SELECTEDVALUE(dim_date[wn]), MAX(dim_date[wn]))
+			VAR cw = CALCULATE([DSRN], dim_date[wn] = selv)
+			VAR pw = CALCULATE([DSRN], FILTER(ALL(dim_date), dim_date[wn] = selv - 1))
+			RETURN DIVIDE(cw, pw, 0) - 1
+		formatString: 0.0%
+		displayFolder: Week over Week
+		lineageTag: 7550f0c1-3d93-45bf-963d-a4077f3764e2
+
+	/// Revenue for the previous calendar month relative to the selected period (dates shifted back one month). When no previous-month data exists (e.g. for May), it returns the current value so the comparison shows no change.
+	measure 'Revenue PM' =
+			VAR pm = CALCULATE([Revenue], DATEADD(dim_date[date], -1, MONTH))
+			RETURN IF(ISBLANK(pm), [Revenue], pm)
+		formatString: ₹ #,##0
+		displayFolder: Month over Month\Previous Month Values
+		lineageTag: 7155cd50-c4bf-4803-93cf-a376608c3dd8
+
+	/// Percentage change in Revenue versus the previous month: (current - previous) / previous. Shows 0% when no previous-month data exists (e.g. for May). Drives the 'Chg % vs PM' labels.
+	measure 'Revenue MoM change %' =
+			VAR cur = [Revenue]
+			VAR pm = [Revenue PM]
+			RETURN DIVIDE(cur - pm, pm)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Month over Month\Change % vs PM
+		lineageTag: 92d56492-439d-4b91-aca2-00fb4101d48f
+
+	/// Occupancy % for the previous calendar month relative to the selected period (dates shifted back one month). When no previous-month data exists (e.g. for May), it returns the current value so the comparison shows no change.
+	measure 'Occupancy % PM' =
+			VAR pm = CALCULATE([Occupancy %], DATEADD(dim_date[date], -1, MONTH))
+			RETURN IF(ISBLANK(pm), [Occupancy %], pm)
+		formatString: 0.0%
+		displayFolder: Month over Month\Previous Month Values
+		lineageTag: 62acfffb-b266-40e2-a224-c7074eaffe55
+
+	/// Percentage change in Occupancy % versus the previous month: (current - previous) / previous. Shows 0% when no previous-month data exists (e.g. for May). Drives the 'Chg % vs PM' labels.
+	measure 'Occupancy % MoM change %' =
+			VAR cur = [Occupancy %]
+			VAR pm = [Occupancy % PM]
+			RETURN DIVIDE(cur - pm, pm)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Month over Month\Change % vs PM
+		lineageTag: cdac9e95-67b3-47f2-9139-6e4e46d994c2
+
+	/// Average Rating for the previous calendar month relative to the selected period (dates shifted back one month). When no previous-month data exists (e.g. for May), it returns the current value so the comparison shows no change.
+	measure 'Average Rating PM' =
+			VAR pm = CALCULATE([Average Rating], DATEADD(dim_date[date], -1, MONTH))
+			RETURN IF(ISBLANK(pm), [Average Rating], pm)
+		formatString: 0.0
+		displayFolder: Month over Month\Previous Month Values
+		lineageTag: 9c84d281-e6fd-48c7-9dba-14041db6bf75
+
+	/// Percentage change in Average Rating versus the previous month: (current - previous) / previous. Shows 0% when no previous-month data exists (e.g. for May). Drives the 'Chg % vs PM' labels.
+	measure 'Average Rating MoM change %' =
+			VAR cur = [Average Rating]
+			VAR pm = [Average Rating PM]
+			RETURN DIVIDE(cur - pm, pm)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Month over Month\Change % vs PM
+		lineageTag: 42c528ef-3cdf-4c01-a88d-7ef0eabf927e
+
+	/// ADR for the previous calendar month relative to the selected period (dates shifted back one month). When no previous-month data exists (e.g. for May), it returns the current value so the comparison shows no change.
+	measure 'ADR PM' =
+			VAR pm = CALCULATE([ADR], DATEADD(dim_date[date], -1, MONTH))
+			RETURN IF(ISBLANK(pm), [ADR], pm)
+		formatString: ₹ #,##0.00
+		displayFolder: Month over Month\Previous Month Values
+		lineageTag: e4df2248-d4a0-4882-98a0-61e8d35705bc
+
+	/// Percentage change in ADR versus the previous month: (current - previous) / previous. Shows 0% when no previous-month data exists (e.g. for May). Drives the 'Chg % vs PM' labels.
+	measure 'ADR MoM change %' =
+			VAR cur = [ADR]
+			VAR pm = [ADR PM]
+			RETURN DIVIDE(cur - pm, pm)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Month over Month\Change % vs PM
+		lineageTag: 83b6c5b4-83d4-4273-877a-1f91819ac96b
+
+	/// RevPAR for the previous calendar month relative to the selected period (dates shifted back one month). When no previous-month data exists (e.g. for May), it returns the current value so the comparison shows no change.
+	measure 'RevPAR PM' =
+			VAR pm = CALCULATE([RevPAR], DATEADD(dim_date[date], -1, MONTH))
+			RETURN IF(ISBLANK(pm), [RevPAR], pm)
+		formatString: ₹ #,##0.00
+		displayFolder: Month over Month\Previous Month Values
+		lineageTag: 6748ed3e-3894-45ca-8046-2fd1fe31eff8
+
+	/// Percentage change in RevPAR versus the previous month: (current - previous) / previous. Shows 0% when no previous-month data exists (e.g. for May). Drives the 'Chg % vs PM' labels.
+	measure 'RevPAR MoM change %' =
+			VAR cur = [RevPAR]
+			VAR pm = [RevPAR PM]
+			RETURN DIVIDE(cur - pm, pm)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Month over Month\Change % vs PM
+		lineageTag: c6964707-6b4f-4ead-91d5-032473492656
+
+	/// Realisation % for the previous calendar month relative to the selected period (dates shifted back one month). When no previous-month data exists (e.g. for May), it returns the current value so the comparison shows no change.
+	measure 'Realisation % PM' =
+			VAR pm = CALCULATE([Realisation %], DATEADD(dim_date[date], -1, MONTH))
+			RETURN IF(ISBLANK(pm), [Realisation %], pm)
+		formatString: 0.0%
+		displayFolder: Month over Month\Previous Month Values
+		lineageTag: 93bca173-6eb1-4c45-92b9-34595ab13ac7
+
+	/// Percentage change in Realisation % versus the previous month: (current - previous) / previous. Shows 0% when no previous-month data exists (e.g. for May). Drives the 'Chg % vs PM' labels.
+	measure 'Realisation % MoM change %' =
+			VAR cur = [Realisation %]
+			VAR pm = [Realisation % PM]
+			RETURN DIVIDE(cur - pm, pm)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Month over Month\Change % vs PM
+		lineageTag: 483d788e-23ca-4c63-81b9-d1e0a4c0f9a2
+
+	/// Total Bookings for the previous calendar month relative to the selected period (dates shifted back one month). When no previous-month data exists (e.g. for May), it returns the current value so the comparison shows no change.
+	measure 'Total Bookings PM' =
+			VAR pm = CALCULATE([Total Bookings], DATEADD(dim_date[date], -1, MONTH))
+			RETURN IF(ISBLANK(pm), [Total Bookings], pm)
+		formatString: #,##0
+		displayFolder: Month over Month\Previous Month Values
+		lineageTag: 5e0cd2a6-6458-404f-9a08-82bce64af4d5
+
+	/// Percentage change in Total Bookings versus the previous month: (current - previous) / previous. Shows 0% when no previous-month data exists (e.g. for May). Drives the 'Chg % vs PM' labels.
+	measure 'Total Bookings MoM change %' =
+			VAR cur = [Total Bookings]
+			VAR pm = [Total Bookings PM]
+			RETURN DIVIDE(cur - pm, pm)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Month over Month\Change % vs PM
+		lineageTag: 8176995f-2007-4e8b-b27d-09258919d937
+
+	/// Cancellation % for the previous calendar month relative to the selected period (dates shifted back one month). When no previous-month data exists (e.g. for May), it returns the current value so the comparison shows no change.
+	measure 'Cancellation % PM' =
+			VAR pm = CALCULATE([Cancellation %], DATEADD(dim_date[date], -1, MONTH))
+			RETURN IF(ISBLANK(pm), [Cancellation %], pm)
+		formatString: 0.0%
+		displayFolder: Month over Month\Previous Month Values
+		lineageTag: 86e4b05c-7bab-4971-90bb-3fb125f7f339
+
+	/// Percentage change in Cancellation % versus the previous month: (current - previous) / previous. Shows 0% when no previous-month data exists (e.g. for May). Drives the 'Chg % vs PM' labels.
+	measure 'Cancellation % MoM change %' =
+			VAR cur = [Cancellation %]
+			VAR pm = [Cancellation % PM]
+			RETURN DIVIDE(cur - pm, pm)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Month over Month\Change % vs PM
+		lineageTag: 7f0afb32-5bb2-40de-8e54-54fe73a9c9f7
+
+	/// Hex colour used for positive/favourable change (green).
+	measure 'Color Green' = "#2E9E5B"
+		displayFolder: Conditional Formatting\Palette
+		lineageTag: 175f2fff-65e3-4dfa-ac53-e765cd9abbcd
+
+	/// Hex colour used for negative/unfavourable change (red).
+	measure 'Color Red' = "#D64545"
+		displayFolder: Conditional Formatting\Palette
+		lineageTag: 8be0ff55-abe2-435d-add5-b8c4f25869ae
+
+	/// Hex colour used for no change or unavailable data (grey).
+	measure 'Color Neutral' = "#7F7F7F"
+		displayFolder: Conditional Formatting\Palette
+		lineageTag: 324ad636-31a5-46f7-bf0c-adb43c73cca3
+
+	/// Conditional-formatting colour for Revenue MoM change %: green for an increase, red for a decrease, grey for no change or no data (an increase is favourable). Use in Format > Conditional formatting > Field value.
+	measure 'Revenue MoM Color' =
+			VAR chg = [Revenue MoM change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Month over Month
+		lineageTag: 5a6318d2-57ae-4575-b268-1fe9d96c0609
+
+	/// Conditional-formatting colour for Occupancy % MoM change %: green for an increase, red for a decrease, grey for no change or no data (an increase is favourable). Use in Format > Conditional formatting > Field value.
+	measure 'Occupancy % MoM Color' =
+			VAR chg = [Occupancy % MoM change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Month over Month
+		lineageTag: c812a67e-d6c4-468b-82ec-1dbeaef34e85
+
+	/// Conditional-formatting colour for Average Rating MoM change %: green for an increase, red for a decrease, grey for no change or no data (an increase is favourable). Use in Format > Conditional formatting > Field value.
+	measure 'Average Rating MoM Color' =
+			VAR chg = [Average Rating MoM change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Month over Month
+		lineageTag: 6068ad85-c158-4e93-b422-51f3f546c224
+
+	/// Conditional-formatting colour for ADR MoM change %: green for an increase, red for a decrease, grey for no change or no data (an increase is favourable). Use in Format > Conditional formatting > Field value.
+	measure 'ADR MoM Color' =
+			VAR chg = [ADR MoM change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Month over Month
+		lineageTag: 7e55f702-dafc-471b-8eae-8005cf373ff1
+
+	/// Conditional-formatting colour for RevPAR MoM change %: green for an increase, red for a decrease, grey for no change or no data (an increase is favourable). Use in Format > Conditional formatting > Field value.
+	measure 'RevPAR MoM Color' =
+			VAR chg = [RevPAR MoM change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Month over Month
+		lineageTag: 6d09bbbc-62fb-4233-80bd-19f618c5bc54
+
+	/// Conditional-formatting colour for Realisation % MoM change %: green for an increase, red for a decrease, grey for no change or no data (an increase is favourable). Use in Format > Conditional formatting > Field value.
+	measure 'Realisation % MoM Color' =
+			VAR chg = [Realisation % MoM change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Month over Month
+		lineageTag: 34d026ae-26d9-4b44-91f1-de768b986af6
+
+	/// Conditional-formatting colour for Total Bookings MoM change %: green for an increase, red for a decrease, grey for no change or no data (an increase is favourable). Use in Format > Conditional formatting > Field value.
+	measure 'Total Bookings MoM Color' =
+			VAR chg = [Total Bookings MoM change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Month over Month
+		lineageTag: 8eec7d01-779c-465c-b5cc-d2c9360e2098
+
+	/// Conditional-formatting colour for Cancellation % MoM change %: red for an increase, green for a decrease, grey for no change or no data (an increase is unfavourable). Use in Format > Conditional formatting > Field value.
+	measure 'Cancellation % MoM Color' =
+			VAR chg = [Cancellation % MoM change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Red], chg < 0, [Color Green], [Color Neutral])
+		displayFolder: Conditional Formatting\Month over Month
+		lineageTag: 37a4a926-c571-4c2b-8a67-e85e5923487a
+
+	/// Conditional-formatting colour for Revenue WoW change %: green for an increase, red for a decrease, grey for no change or no data.
+	measure 'Revenue WoW Color' =
+			VAR chg = [Revenue WoW change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Week over Week
+		lineageTag: 14e4e6d0-ae80-49b0-ab2a-22491800361c
+
+	/// Conditional-formatting colour for Occupancy WoW change %: green for an increase, red for a decrease, grey for no change or no data.
+	measure 'Occupancy WoW Color' =
+			VAR chg = [Occupancy WoW change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Week over Week
+		lineageTag: 063938a6-5c31-4766-b2ce-165015f0326c
+
+	/// Conditional-formatting colour for ADR WoW change %: green for an increase, red for a decrease, grey for no change or no data.
+	measure 'ADR WoW Color' =
+			VAR chg = [ADR WoW change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Week over Week
+		lineageTag: f191e183-69be-461e-a465-816833163840
+
+	/// Conditional-formatting colour for Revpar WoW change %: green for an increase, red for a decrease, grey for no change or no data.
+	measure 'Revpar WoW Color' =
+			VAR chg = [Revpar WoW change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Week over Week
+		lineageTag: 7b8c218f-5352-474a-8364-fcbfd869d4fb
+
+	/// Conditional-formatting colour for Realisation WoW change %: green for an increase, red for a decrease, grey for no change or no data.
+	measure 'Realisation WoW Color' =
+			VAR chg = [Realisation WoW change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Week over Week
+		lineageTag: eccab561-e295-450a-9e6d-de5837195875
+
+	/// Conditional-formatting colour for DSRN WoW change %: green for an increase, red for a decrease, grey for no change or no data.
+	measure 'DSRN WoW Color' =
+			VAR chg = [DSRN WoW change %]
+			RETURN SWITCH(TRUE(), ISBLANK(chg), [Color Neutral], chg > 0, [Color Green], chg < 0, [Color Red], [Color Neutral])
+		displayFolder: Conditional Formatting\Week over Week
+		lineageTag: 794946c5-bf62-4da3-a446-1457a53cdc68
+
+	/// Hex colour for booking status bars: green for Checked Out, red for Cancelled, amber for No Show. Used as a Field value colour on the Bookings by Status chart.
+	measure 'Booking Status Color' = SWITCH(SELECTEDVALUE(fact_bookings[booking_status]), "Checked Out", [Color Green], "Cancelled", [Color Red], "No Show", "#F4B23E", [Color Neutral])
+		displayFolder: Conditional Formatting\Palette
+		lineageTag: bfdb5421-fd3f-41f1-818c-33317c573da4
+
+	column Column1
+		isHidden
+		lineageTag: 896fe493-efa4-4886-92e1-c21b2ddda931
+		isNameInferred
+		sourceColumn: [Column1]
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW("Column1", BLANK())
+

@@ -1,0 +1,249 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "Fluent2-CY26SU09",
+      "reportVersionAtImport": {
+        "visual": "2.13.0",
+        "report": "3.4.0",
+        "page": "2.3.1"
+      },
+      "type": "SharedResources"
+    }
+  },
+  "objects": {
+    "section": [
+      {
+        "properties": {
+          "verticalAlignment": {
+            "expr": {
+              "Literal": {
+                "Value": "'Top'"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspacePane": [
+      {
+        "properties": {
+          "expanded": {
+            "expr": {
+              "Literal": {
+                "Value": "false"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "resourcePackages": [
+    {
+      "name": "SharedResources",
+      "type": "SharedResources",
+      "items": [
+        {
+          "name": "Fluent2-CY26SU09",
+          "path": "BaseThemes/Fluent2-CY26SU09.json",
+          "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "ic_bed_4DB6EA.svg",
+          "path": "ic_bed_4DB6EA.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_bed_4F5BD5.svg",
+          "path": "ic_bed_4F5BD5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_bed_F4B23E.svg",
+          "path": "ic_bed_F4B23E.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_building_4C6EF5.svg",
+          "path": "ic_building_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_building_4F5BD5.svg",
+          "path": "ic_building_4F5BD5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_building_F4B23E.svg",
+          "path": "ic_building_F4B23E.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_calendar_4F5BD5.svg",
+          "path": "ic_calendar_4F5BD5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_calendar_FF5C75.svg",
+          "path": "ic_calendar_FF5C75.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_check_20B486.svg",
+          "path": "ic_check_20B486.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_columns_4C6EF5.svg",
+          "path": "ic_columns_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_cross_FF5C75.svg",
+          "path": "ic_cross_FF5C75.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_gauge_4DB6EA.svg",
+          "path": "ic_gauge_4DB6EA.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_gauge_FF5C75.svg",
+          "path": "ic_gauge_FF5C75.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_globe_1FA37A.svg",
+          "path": "ic_globe_1FA37A.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_globe_4C6EF5.svg",
+          "path": "ic_globe_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_globe_4F5BD5.svg",
+          "path": "ic_globe_4F5BD5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_globe_FF5C75.svg",
+          "path": "ic_globe_FF5C75.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_grid_4DB6EA.svg",
+          "path": "ic_grid_4DB6EA.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_heat_4F5BD5.svg",
+          "path": "ic_heat_4F5BD5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_home_4C6EF5.svg",
+          "path": "ic_home_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_layers_1FA37A.svg",
+          "path": "ic_layers_1FA37A.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_layers_4C6EF5.svg",
+          "path": "ic_layers_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_layers_4DB6EA.svg",
+          "path": "ic_layers_4DB6EA.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_list_4C6EF5.svg",
+          "path": "ic_list_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_list_4F5BD5.svg",
+          "path": "ic_list_4F5BD5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_revenue_1FA37A.svg",
+          "path": "ic_revenue_1FA37A.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_revenue_20B486.svg",
+          "path": "ic_revenue_20B486.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_revenue_4C6EF5.svg",
+          "path": "ic_revenue_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_star_4C6EF5.svg",
+          "path": "ic_star_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_star_F4B23E.svg",
+          "path": "ic_star_F4B23E.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_star_FF5C75.svg",
+          "path": "ic_star_FF5C75.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_sun_20B486.svg",
+          "path": "ic_sun_20B486.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_tag_F4B23E.svg",
+          "path": "ic_tag_F4B23E.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_trend_20B486.svg",
+          "path": "ic_trend_20B486.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_trend_4C6EF5.svg",
+          "path": "ic_trend_4C6EF5.svg",
+          "type": "Image"
+        },
+        {
+          "name": "ic_trend_4F5BD5.svg",
+          "path": "ic_trend_4F5BD5.svg",
+          "type": "Image"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "exportDataMode": "AllowSummarized",
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true
+  }
+}

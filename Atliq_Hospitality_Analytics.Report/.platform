@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Atliq_Hospitality_Analytics"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "44315e52-f13c-4b93-b4f5-10397c338f7c"
+  }
+}

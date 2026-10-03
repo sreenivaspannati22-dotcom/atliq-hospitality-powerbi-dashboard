@@ -1,0 +1,76 @@
+table dim_date
+	lineageTag: cad9c62d-afa2-4641-81d7-45777fb6bddc
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 76bc6c8f-39d8-4658-9838-0f3507d53e0b
+		summarizeBy: none
+		sourceColumn: date
+
+	column day_type
+		dataType: string
+		lineageTag: f3664329-4ff7-41d5-a56d-584463a89921
+		summarizeBy: none
+		sourceColumn: day_type
+
+	/// Week number of the year for the date (WEEKNUM, week starts Sunday). Used for week-over-week measures.
+	column wn = WEEKNUM(dim_date[date])
+		dataType: int64
+		formatString: 0
+		lineageTag: 2228f5cf-b579-4fc8-901d-f2ca081104f5
+		summarizeBy: none
+
+	/// Weekend (Friday and Saturday) or Weekday (Sunday to Thursday), per stakeholder feedback. WEEKDAY type 1 returns Sunday = 1, so values above 5 are weekend.
+	column 'day type' = IF(WEEKDAY(dim_date[date], 1) > 5, "Weekend", "Weekday")
+		dataType: string
+		lineageTag: ba9242c8-d770-482b-8cde-4fcaaa26acba
+		summarizeBy: none
+
+	/// Month number (5-7) used to sort 'mmm yy' chronologically.
+	column 'month no' = MONTH(dim_date[date])
+		dataType: int64
+		formatString: 0
+		lineageTag: 992c244f-c8bc-4545-ab35-9af320a46587
+		summarizeBy: none
+
+	/// Day of week number, Monday = 1 to Sunday = 7. Used to sort weekday.
+	column 'weekday no' = WEEKDAY(dim_date[date], 2)
+		dataType: int64
+		formatString: 0
+		lineageTag: febe0f81-c4d1-43be-b39f-b4abd28e4483
+		summarizeBy: none
+
+	/// Short weekday name (Mon, Tue, ...), sorted Monday to Sunday.
+	column weekday = FORMAT(dim_date[date], "ddd")
+		dataType: string
+		lineageTag: 0a112f7b-dec8-4977-879c-6250048c6713
+		summarizeBy: none
+		sortByColumn: 'weekday no'
+
+	column 'mmm yy'
+		dataType: string
+		lineageTag: 56933d54-4a7a-4f17-8821-9962b0dd7449
+		summarizeBy: none
+		sourceColumn: 'mmm yy'
+		sortByColumn: 'month no'
+
+	column 'week no'
+		dataType: string
+		lineageTag: b40cd99d-84b1-4fc9-8cf2-cb4a2f63aea0
+		summarizeBy: none
+		sourceColumn: 'week no'
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "\dim_date.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Parsed = Table.TransformColumns(Promoted, {{"date", each Date.FromText(_, [Format="dd-MMM-yy", Culture="en-US"]), type date}}),
+				    ChangedType = Table.TransformColumnTypes(Parsed, {{"date", type date}, {"mmm yy", type text}, {"week no", type text}, {"day_type", type text}})
+				in
+				    ChangedType
+
+	annotation PBI_ResultType = Table
+

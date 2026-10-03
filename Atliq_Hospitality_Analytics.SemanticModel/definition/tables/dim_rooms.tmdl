@@ -1,0 +1,27 @@
+table dim_rooms
+	lineageTag: dad2ba1d-82cb-4bf8-8c38-366f5c616cd8
+
+	column room_id
+		dataType: string
+		lineageTag: 88b7eb4a-ea3a-43b3-a2cf-cca288480aa0
+		summarizeBy: none
+		sourceColumn: room_id
+
+	column room_class
+		dataType: string
+		lineageTag: cec84219-ed45-434c-8348-144996a3aa65
+		summarizeBy: none
+		sourceColumn: room_class
+
+	partition dim_rooms = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "\dim_rooms.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    ChangedType = Table.TransformColumnTypes(Promoted, {{"room_id", type text}, {"room_class", type text}})
+				in
+				    ChangedType
+
+	annotation PBI_ResultType = Table
+

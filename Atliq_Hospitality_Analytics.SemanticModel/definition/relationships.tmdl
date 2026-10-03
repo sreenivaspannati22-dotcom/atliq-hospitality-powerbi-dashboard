@@ -1,0 +1,24 @@
+relationship 2a1530fd-616f-4941-89fa-52889d76ce1d
+	fromColumn: fact_bookings.check_in_date
+	toColumn: dim_date.date
+
+relationship 701dc4e8-21a1-451d-8491-4fa26fe20f5e
+	fromColumn: fact_aggregated_bookings.check_in_date
+	toColumn: dim_date.date
+
+relationship 24585722-ec1d-44bc-9c35-6de53edcd5c0
+	fromColumn: fact_bookings.property_id
+	toColumn: dim_hotels.property_id
+
+relationship ccc3b060-a98a-439f-ab95-99a81a017466
+	fromColumn: fact_aggregated_bookings.property_id
+	toColumn: dim_hotels.property_id
+
+relationship bd5beaa9-ea69-4945-861d-96df2d698583
+	fromColumn: fact_bookings.room_category
+	toColumn: dim_rooms.room_id
+
+relationship e02cbe5a-ff2a-409f-b50c-757bc94c8c0d
+	fromColumn: fact_aggregated_bookings.room_category
+	toColumn: dim_rooms.room_id
+

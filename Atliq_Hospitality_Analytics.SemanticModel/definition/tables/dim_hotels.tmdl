@@ -1,0 +1,40 @@
+table dim_hotels
+	lineageTag: 55ab744a-8da5-477b-9f1b-47ba8e771b3b
+
+	column property_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 9ec3a737-0426-4a4f-a02f-6db685882671
+		summarizeBy: none
+		sourceColumn: property_id
+
+	column property_name
+		dataType: string
+		lineageTag: 85efceb8-ecc2-4c79-8a67-db8fa62137d8
+		summarizeBy: none
+		sourceColumn: property_name
+
+	column category
+		dataType: string
+		lineageTag: 70592d4e-90fc-4790-b563-42ede000ef52
+		summarizeBy: none
+		sourceColumn: category
+
+	column city
+		dataType: string
+		lineageTag: fd5675c5-e5e2-4134-b06b-ca10a726c79b
+		summarizeBy: none
+		sourceColumn: city
+
+	partition dim_hotels = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolderPath & "\dim_hotels.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    ChangedType = Table.TransformColumnTypes(Promoted, {{"property_id", Int64.Type}, {"property_name", type text}, {"category", type text}, {"city", type text}})
+				in
+				    ChangedType
+
+	annotation PBI_ResultType = Table
+
