@@ -4,13 +4,22 @@ A five-page Power BI dashboard that analyses revenue, occupancy and guest experi
 
 This project was built for the **Atliq Hospitality analytics challenge by [Codebasics](https://codebasics.io)**.
 
-<!-- Add your screenshots to a "screenshots" folder, then delete the comment markers around these lines to show them.
-![Home](screenshots/home.png)
-![Executive Overview](screenshots/overview.png)
-![Revenue & Pricing](screenshots/revenue.png)
-![Occupancy & Capacity](screenshots/occupancy.png)
-![Bookings & Customer Experience](screenshots/bookings.png)
--->
+## Dashboard preview
+
+**Home**
+![Home page](screenshots/home.png)
+
+**Executive Overview**
+![Executive Overview page](screenshots/overview.png)
+
+**Revenue & Pricing**
+![Revenue and Pricing page](screenshots/revenue.png)
+
+**Occupancy & Capacity**
+![Occupancy and Capacity page](screenshots/occupancy.png)
+
+**Bookings & Customer Experience**
+![Bookings and Customer Experience page](screenshots/bookings.png)
 
 ## Business questions
 
